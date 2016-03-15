@@ -8,7 +8,6 @@ class Tally_Splitter(object):
 
         i = 0
         while i < len(file_data):
-            print i
             current_line = file_data[i]
             if current_line.split()[0] == 'tally':         # here begins extraction of data
                 tally_name = 'tally' + current_line.split()[1]
@@ -21,6 +20,7 @@ class Tally_Splitter(object):
                         break                           # next line is begining of data
 
                 list_of_energies = []
+                print list_of_energies
                 while True:
                     i += 1
                     if file_data[i].split()[0] == 't':
@@ -44,14 +44,24 @@ class Tally_Splitter(object):
 
 
                 # saving all to file
-                new_file_name = filename[:-3] + '_' + tally_name + '.csv'
-                file = open(new_file_name,'w')   # Trying to create a new file or open one
+                new_file_name = filename[:-2] + '_' + tally_name + '.csv'
+                file = open(new_file_name,'w')
 
-                file.write(tally_name + ';' + tally_description)
+                file.write(';' + tally_name + ';' + tally_description)
+
+
+                # offset is used for complex tallies - spf and etc.
+                if 2*(len(list_of_energies) + 1) == len(list_of_values):
+                    offset = len(list_of_energies) + 1
+                else:
+                    offset = 0
+
                 for k in range(len(list_of_energies)):
-                    new_line = list_of_energies[k] + ';' + list_of_values[k] + ';' + list_of_accuracy[k] + '\n'
+                    new_line = list_of_energies[k] + ';' + \
+                               list_of_values[k + offset] + ';' + \
+                               list_of_accuracy[k + offset] + '\n'
                     file.write(new_line.replace('.',','))
-                last_line = 'TOTAL;' + list_of_values[k+1] + ';' + list_of_accuracy[k+1]
+                last_line = 'TOTAL;' + list_of_values[k + offset + 1] + ';' + list_of_accuracy[k + offset + 1]
                 file.write(last_line.replace('.',','))
 
                 file.close()
